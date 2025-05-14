@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ví dụ về tối ưu JavaScript</title>
+
+    <!-- DNS Prefetch và Preconnect cho CDN -->
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+    <!-- Preload: Tải trước các tài nguyên JS quan trọng -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/critical-lib@1.0.0/dist/critical.min.js" as="script">
+    
+    <!-- Async và Defer: Không chặn quá trình render khi download script -->
+     <!-- Async: Dừng quá trình render để execute script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/analytics.js/2.9.1/analytics.min.js" async></script>
+    <!-- Defer: Không dừng quá trình render, execute script sau khi trang đã tải xong -->
+    <script src="https://cdn.jsdelivr.net/npm/non-critical-lib@1.0.0/dist/non-critical.min.js" defer></script>
+    
+    <!-- Minify JS (tệp đã được nén) -->
+    <script src="https://cdn.jsdelivr.net/npm/app-package@1.0.0/dist/app.min.js" defer></script>
+</head>
+<body>
+    <h1>Ví dụ về tối ưu JavaScript</h1>
+    
+    <button id="loadFeature">Tải tính năng theo yêu cầu</button>
+    <button id="heavyOperation">Thực hiện thao tác phức tạp</button>
+    <button id="animationDemo">Hiệu ứng hoạt hình</button>
+    <button id="searchInput">Tìm kiếm (với debounce)</button>
+    <button id="scrollEvent">Kích hoạt sự kiện cuộn (với throttle)</button>
+    
+    <div id="result"></div>
+    
+    <!-- Sử dụng thư viện từ CDN cho Debounce & Throttle -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" defer></script>
+    <script>
+        // Kiểm tra và sử dụng Lodash từ CDN nếu có sẵn, hoặc dùng hàm tự triển khai
+        window.addEventListener('DOMContentLoaded', () => {
+            // Hàm debounce: chỉ thực thi sau khi ngừng sự kiện trong một khoảng thời gian
+            const debounce = window._ ? _.debounce : function(func, wait) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            };
+            
+            // Hàm throttle: giới hạn tần suất thực thi
+            const throttle = window._ ? _.throttle : function(func, limit) {
+                let inThrottle;
+                return function(...args) {
+                    if (!inThrottle) {
+                        func.apply(this, args);
+                        inThrottle = true;
+                        setTimeout(() => inThrottle = false, limit);
+                    }
+                };
+            };
+            
+            // Sử dụng debounce cho tìm kiếm
+            const search = debounce(function(text) {
+                console.log('Đang tìm kiếm: ' + text);
+                // Gọi API tìm kiếm ở đây
+            }, 300);
+            
+            document.getElementById('searchInput')
+                .addEventListener('click', () => {
+                    search('từ khóa mẫu');
+            });
+            
+            // Sử dụng throttle cho sự kiện scroll
+            const handleScroll = throttle(function() {
+                console.log('Đang xử lý sự kiện cuộn');
+                // Xử lý logic cuộn
+            }, 200);
+            
+            document.getElementById('scrollEvent')
+                .addEventListener('click', handleScroll);
+        });
+        
+        // Sử dụng requestAnimationFrame cho hiệu ứng animation
+        document.getElementById('animationDemo').addEventListener('click', () => {
+            let start;
+            let element = document.getElementById('result');
+            element.style.width = '10px';
+            element.style.height = '10px';
+            element.style.background = 'red';
+            element.style.position = 'relative';
+            
+            function step(timestamp) {
+                if (!start) start = timestamp;
+                const progress = timestamp - start;
+                
+                element.style.left = Math.min(progress / 10, 300) + 'px';
+                
+                if (progress < 3000) {
+                    window.requestAnimationFrame(step);
+                }
+            }
+            
+            window.requestAnimationFrame(step);
+        });
+    </script>
+    
+    <!-- Sử dụng Web Workers cho tác vụ nặng -->
+    <script>
+        document.getElementById('heavyOperation').addEventListener('click', () => {
+            // Tạo worker để thực hiện công việc nặng không chặn UI thread
+            if (window.Worker) {
+                // Sử dụng Blob URL để tránh yêu cầu network cho worker script
+                const workerCode = `
+                    self.onmessage = function(e) {
+                        // Nhận dữ liệu từ thread chính
+                        const data = e.data;
+                        
+                        // Thực hiện một tác vụ nặng
+                        let result = 0;
+                        for (let i = 0; i < 1000000000; i++) {
+                            result += i;
+                        }
+                        
+                        // Trả kết quả về thread chính
+                        self.postMessage(result);
+                    };
+                `;
+                
+                const blob = new Blob([workerCode], {type: 'application/javascript'});
+                const worker = new Worker(URL.createObjectURL(blob));
+                
+                worker.postMessage({data: 'Dữ liệu cần xử lý'});
+                
+                worker.onmessage = function(e) {
+                    document.getElementById('result').textContent = 'Kết quả: ' + e.data;
+                };
+            } else {
+                // Fallback cho trình duyệt không hỗ trợ Web Workers
+                document.getElementById('result').textContent = 'Trình duyệt không hỗ trợ Web Workers';
+            }
+        });
+    </script>
+    
+    <!-- Giảm thiểu Third-party JS -->
+    <script>
+        // Tải Third-party JS theo cách lười biếng
+        const loadThirdParty = () => {
+            // Tạo thẻ script cho third-party khi cần
+            const script = document.createElement('script');
+            script.src = 'https://cdn.example.com/third-party-library.min.js';
+            document.body.appendChild(script);
+        };
+        
+        // Chỉ tải third-party khi người dùng tương tác hoặc cần đến
+        // document.getElementById('someButton').addEventListener('click', loadThirdParty);
+        
+        // Hoặc tải khi người dùng cuộn đến một phần nào đó của trang
+        const lazyLoadThirdParty = () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > 1000) {
+                loadThirdParty();
+                window.removeEventListener('scroll', lazyLoadThirdParty);
+            }
+        };
+        
+        window.addEventListener('scroll', lazyLoadThirdParty);
+        
+        // Sử dụng SubResource Integrity (SRI) cho an toàn khi dùng CDN
+        function loadSafeScript() {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/secure-lib/1.0.0/secure-lib.min.js';
+            script.integrity = 'sha384-exampleHash+exampleHash+exampleHash+exampleHash';
+            script.crossOrigin = 'anonymous';
+            document.body.appendChild(script);
+        }
+    </script>
+</body>
+</html>

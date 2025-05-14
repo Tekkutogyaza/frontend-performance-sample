@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tối ưu Font trong Frontend</title>
+    <style>
+        /* Khai báo font tự host */
+        @font-face {
+            font-family: 'OpenSans';
+            src: url('../assets/fonts/OpenSans-Regular.woff2') format('woff2'),
+                 url('../assets/fonts/OpenSans-Regular.woff') format('woff');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap; /* Hiển thị font mặc định trước, sau đó swap khi font web đã tải xong */
+        }
+
+        /* Thiết lập font fallback */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+                Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Áp dụng font tự host sau khi tải xong */
+        .font-loaded body {
+            font-family: 'OpenSans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tối ưu hóa Font trong Frontend</h1>
+    
+    <div class="font-demo">
+        <h2>Ví dụ về tối ưu font</h2>
+        <p>Đây là ví dụ về văn bản sử dụng font được tối ưu. Ban đầu, nó sẽ hiển thị bằng font hệ thống mặc định, sau đó chuyển sang font web khi tải xong.</p>
+    </div>
+
+    <div>
+        <h2>Các kỹ thuật đã áp dụng</h2>
+        <ul>
+            <li><strong>Font fallback system:</strong> Sử dụng font hệ thống trước khi font tùy chỉnh được tải</li>
+            <li><strong>font-display: swap:</strong> Hiển thị font dự phòng ngay lập tức, sau đó swap sang font web khi tải xong</li>
+            <li><strong>Tự host font:</strong> Sử dụng font được tự host thay vì từ CDN bên thứ ba</li>
+            <li><strong>Tối thiểu font weights:</strong> Chỉ sử dụng 2 biến thể font (Regular và Bold)</li>
+            <li><strong>Sử dụng định dạng WOFF2/WOFF:</strong> Định dạng hiện đại, được nén tốt hơn</li>
+        </ul>
+    </div>
+
+    <script>
+        // Kiểm tra xem font đã tải xong chưa và thêm class để áp dụng font web
+        document.fonts.ready.then(() => {
+            document.documentElement.classList.add('font-loaded');
+        });
+    </script>
+</body>
+</html>

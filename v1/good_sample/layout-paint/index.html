@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tối Ưu Layout và Paint</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .demo-section {
+            flex: 1;
+            min-width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .box-container {
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+            border: 1px dashed #ccc;
+            margin-bottom: 20px;
+        }
+
+        /* Phiên bản không tối ưu */
+        .inefficient-box {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: #e74c3c;
+            top: 0;
+            left: 0;
+        }
+
+        /* Phiên bản tối ưu */
+        .efficient-box {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: #2ecc71;
+            top: 0;
+            left: 0;
+            /* Sử dụng will-change để tạo layer riêng, thông báo cho trình duyệt */
+            will-change: transform;
+        }
+
+        .info-section {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .control-panel {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            flex: 1;
+            padding: 10px;
+            background-color: #eee;
+            border-radius: 4px;
+        }
+
+        code {
+            background-color: #f8f8f8;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tối Ưu Layout & Paint</h1>
+    
+    <div class="container">
+        <div class="demo-section">
+            <h2>Không Tối Ưu</h2>
+            <div class="box-container">
+                <div class="inefficient-box" id="inefficient-box"></div>
+            </div>
+            <div class="control-panel">
+                <button id="start-inefficient">Bắt đầu Animation</button>
+                <button id="stop-inefficient">Dừng</button>
+            </div>
+            <div class="info-section">
+                <h3>Vấn đề:</h3>
+                <ul>
+                    <li>Thay đổi thuộc tính <code>left</code> và <code>top</code> gây ra layout</li>
+                    <li>Thay đổi <code>width</code> và <code>background-color</code> gây paint</li>
+                    <li>Sử dụng <code>getBoundingClientRect</code> và thay đổi style liên tục gây layout thrashing</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Đã Tối Ưu</h2>
+            <div class="box-container">
+                <div class="efficient-box" id="efficient-box"></div>
+            </div>
+            <div class="control-panel">
+                <button id="start-efficient">Bắt đầu Animation</button>
+                <button id="stop-efficient">Dừng</button>
+            </div>
+            <div class="info-section">
+                <h3>Giải pháp:</h3>
+                <ul>
+                    <li>Sử dụng <code>transform: translate()</code> thay vì thay đổi <code>left</code> và <code>top</code></li>
+                    <li>Sử dụng <code>transform: scale()</code> thay vì thay đổi <code>width</code></li>
+                    <li>Đọc DOM một lần, ghi nhiều lần (batch update)</li>
+                    <li>Sử dụng <code>will-change: transform</code> để thông báo cho trình duyệt</li>
+                    <li>Dùng <code>requestAnimationFrame</code> để đồng bộ với vòng lặp render</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <h2>Các Nguyên Tắc Tối Ưu Layout và Paint</h2>
+        
+        <h3>Giảm chi phí layout & paint:</h3>
+        <ul>
+            <li>Tránh thay đổi hình học (width, top, left, v.v.) - dùng transform thay thế</li>
+            <li>Đọc trước - ghi sau: gom các thao tác DOM để tránh layout thrashing</li>
+            <li>Chỉ sử dụng transform và opacity cho animation (không gây layout)</li>
+            <li>Sử dụng flex/grid thay vì position: absolute khi có thể</li>
+            <li>Tránh đọc clientWidth, clientHeight, getBoundingClientRect trong vòng lặp animation</li>
+        </ul>
+
+        <h3>Tối ưu composite & layer:</h3>
+        <ul>
+            <li>Sử dụng will-change: transform; hoặc transform: translateZ(0) để tạo layer riêng</li>
+            <li>Chỉ áp dụng will-change cho các phần tử thực sự cần thiết</li>
+            <li>Khi animation kết thúc, xóa will-change nếu không còn cần thiết</li>
+        </ul>
+    </div>
+
+    <script>
+        // Tham chiếu đến các phần tử DOM
+        const inefficientBox = document.getElementById('inefficient-box');
+        const efficientBox = document.getElementById('efficient-box');
+        
+        // Biến lưu trữ animation ID
+        let inefficientAnimationId = null;
+        let efficientAnimationId = null;
+
+        // ===== PHIÊN BẢN KHÔNG TỐI ƯU =====
+        document.getElementById('start-inefficient').addEventListener('click', () => {
+            if (inefficientAnimationId) return;
+            
+            let angle = 0;
+            let growing = true;
+            let boxWidth = 100;
+            
+            function inefficientAnimation() {
+                // Đọc từ DOM - gây layout
+                const boxPosition = inefficientBox.getBoundingClientRect();
+                const containerWidth = inefficientBox.parentElement.clientWidth;
+                const containerHeight = inefficientBox.parentElement.clientHeight;
+                
+                // Cập nhật vị trí - mỗi lần gây layout & paint
+                angle += 2;
+                
+                // Thay đổi position - gây layout
+                inefficientBox.style.left = (containerWidth - boxWidth) / 2 + Math.sin(angle * Math.PI / 180) * 100 + 'px';
+                inefficientBox.style.top = (containerHeight - boxWidth) / 2 + Math.cos(angle * Math.PI / 180) * 100 + 'px';
+                
+                // Thay đổi kích thước - gây layout
+                if (growing) {
+                    boxWidth += 0.5;
+                    if (boxWidth >= 120) growing = false;
+                } else {
+                    boxWidth -= 0.5;
+                    if (boxWidth <= 80) growing = true;
+                }
+                inefficientBox.style.width = boxWidth + 'px';
+                inefficientBox.style.height = boxWidth + 'px';
+                
+                // Thay đổi màu - gây paint
+                const hue = (angle % 360);
+                inefficientBox.style.backgroundColor = `hsl(${hue}, 80%, 60%)`;
+                
+                inefficientAnimationId = requestAnimationFrame(inefficientAnimation);
+            }
+            
+            inefficientAnimationId = requestAnimationFrame(inefficientAnimation);
+        });
+
+        document.getElementById('stop-inefficient').addEventListener('click', () => {
+            if (inefficientAnimationId) {
+                cancelAnimationFrame(inefficientAnimationId);
+                inefficientAnimationId = null;
+            }
+        });
+
+        // ===== PHIÊN BẢN ĐÃ TỐI ƯU =====
+        document.getElementById('start-efficient').addEventListener('click', () => {
+            if (efficientAnimationId) return;
+            
+            // Đọc các giá trị DOM một lần duy nhất
+            const containerWidth = efficientBox.parentElement.clientWidth;
+            const containerHeight = efficientBox.parentElement.clientHeight;
+            const centerX = containerWidth / 2;
+            const centerY = containerHeight / 2;
+            
+            let angle = 0;
+            let scale = 1.0;
+            let scaleDirection = 0.01;
+            
+            function efficientAnimation() {
+                angle += 2;
+                if (scale >= 1.2) scaleDirection = -0.01;
+                if (scale <= 0.8) scaleDirection = 0.01;
+                scale += scaleDirection;
+                
+                // Sử dụng transforms thay vì thay đổi top/left/width/height
+                // Không gây layout, chỉ composite
+                const translateX = Math.sin(angle * Math.PI / 180) * 100;
+                const translateY = Math.cos(angle * Math.PI / 180) * 100;
+                const hue = (angle % 360);
+                
+                // Gom các thay đổi style lại với nhau (batch updates)
+                efficientBox.style.transform = `
+                    translate(${centerX - 50 + translateX}px, ${centerY - 50 + translateY}px)
+                    scale(${scale})
+                `;
+                
+                // CSS Hue Rotation không gây paint như thay đổi backgroundColor
+                efficientBox.style.filter = `hue-rotate(${hue}deg)`;
+                
+                efficientAnimationId = requestAnimationFrame(efficientAnimation);
+            }
+            
+            efficientAnimationId = requestAnimationFrame(efficientAnimation);
+        });
+
+        document.getElementById('stop-efficient').addEventListener('click', () => {
+            if (efficientAnimationId) {
+                cancelAnimationFrame(efficientAnimationId);
+                efficientAnimationId = null;
+            }
+        });
+    </script>
+</body>
+</html>

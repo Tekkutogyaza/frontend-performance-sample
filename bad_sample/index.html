@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Web Chưa Tối Ưu</title>
+    
+    <!-- Tải CSS dưới dạng render-blocking -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Font chưa tối ưu -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap">
+    
+    <!-- JavaScript chưa tối ưu -->
+    <script src="scripts.js"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <!-- Menu phức tạp với nhiều phần tử lồng nhau -->
+            <ul>
+                <li><a href="#">Trang chủ</a></li>
+                <li>
+                    <a href="#">Sản phẩm</a>
+                    <ul>
+                        <li><a href="#">Loại 1</a></li>
+                        <li><a href="#">Loại 2</a></li>
+                        <li><a href="#">Loại 3</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Về chúng tôi</a></li>
+                <li><a href="#">Liên hệ</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <!-- Ảnh lớn, chưa tối ưu, không có kích thước cụ thể -->
+        <div class="hero">
+            <img src="hero.jpg" alt="Hero Banner">
+            <h1>Chào mừng đến với trang web của chúng tôi</h1>
+        </div>
+        
+        <!-- CSS inline không cần thiết -->
+        <div style="background-color: #f4f4f4; padding: 20px; margin: 20px 0;">
+            <h2>Nội dung quan trọng</h2>
+            <p>Đây là một số nội dung quan trọng cho người dùng.</p>
+        </div>
+        
+        <!-- Nhiều hình ảnh chưa tối ưu -->
+        <div class="products">
+            <div class="product">
+                <img src="product1.jpeg" alt="Sản phẩm 1">
+                <h3>Sản phẩm 1</h3>
+                <p>Mô tả sản phẩm 1</p>
+            </div>
+            <div class="product">
+                <img src="product1.jpeg" alt="Sản phẩm 2">
+                <h3>Sản phẩm 2</h3>
+                <p>Mô tả sản phẩm 2</p>
+            </div>
+            <div class="product">
+                <img src="product1.jpeg" alt="Sản phẩm 3">
+                <h3>Sản phẩm 3</h3>
+                <p>Mô tả sản phẩm 3</p>
+            </div>
+        </div>
+        
+        <!-- DOM lớn không cần thiết -->
+        <div class="testimonials">
+            <h2>Đánh giá từ khách hàng</h2>
+            <!-- Hiển thị tất cả 100 đánh giá cùng một lúc -->
+            <div class="testimonial-grid">
+                <!-- Tạo ra 100 phần tử đánh giá -->
+                <script>
+                    for (let i = 0; i < 100; i++) {
+                        document.write(`
+                            <div class="testimonial">
+                                <p>"Sản phẩm tuyệt vời! Tôi rất hài lòng." - Khách hàng ${i+1}</p>
+                            </div>
+                        `);
+                    }
+                </script>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>© 2023 Trang Web Chưa Tối Ưu. Tất cả các quyền được bảo lưu.</p>
+    </footer>
+    
+    <!-- Thêm nhiều script không cần thiết -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+</body>
+</html> 

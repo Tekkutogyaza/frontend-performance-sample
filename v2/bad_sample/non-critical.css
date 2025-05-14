@@ -1,0 +1,57 @@
+/* CSS không critical nhưng được tải đồng bộ */
+.product-image-extra {
+    filter: brightness(1.05);
+}
+
+.product-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ff6b6b;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+/* CSS không cần thiết và lặp lại của Tailwind */
+.extra-styles {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    margin: 1rem;
+    border-radius: 0.25rem;
+} 
+
+.product-row {
+    margin-bottom: 0px;
+}
+.product-column {
+    display: inline-block;
+    width: 100%;
+    padding: 0 0px;
+    vertical-align: top;
+}
+.product-card:hover {
+    /* Thay đổi nhiều thuộc tính gây reflow */
+    margin-top: -5px;
+    margin-bottom: 5px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.product-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+.products-container {
+    display: grid;
+    grid-template-columns: repeat(4,minmax(0,1fr));
+    gap: 24px;
+}
+
+.product-card {
+    --tw-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: var(0 0 #0000,0 0 #0000),var(0 0 #0000,0 0 #0000),var(--tw-shadow);
+}
+

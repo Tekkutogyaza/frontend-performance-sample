@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách sản phẩm (Tối ưu)</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" as="style">
+    <link rel="preload" href="https://code.jquery.com/jquery-3.6.0.min.js" as="script">
+    
+    <!-- Critical CSS (TailwindCSS) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    
+    <!-- Preconnect to external resources -->
+    <link rel="preconnect" href="https://picsum.photos">
+    <link rel="preconnect" href="https://code.jquery.com">
+    
+    <!-- Non-critical CSS loaded asynchronously -->
+    <link rel="preload" href="modal.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="modal.css"></noscript>
+    
+    <!-- Critical JS (jQuery) - defer to not block parsing but execute in order -->
+    <script defer src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Non-critical JS loaded with defer (executes after critical JS) -->
+    <script defer src="non-critical.js"></script>
+    
+    <!-- Preload font files để tăng tốc hiển thị -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600&display=swap" as="style">
+    
+    <!-- Preconnect để tối ưu kết nối đến Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Preload Google Font stylesheet -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600&display=swap" as="style">
+
+    <!-- Tải Google Font với load strategy tối ưu -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+
+    <!-- Fallback cho trường hợp JavaScript bị tắt -->
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    </noscript>
+
+    <!-- Thêm vào phần đầu tài liệu để preconnect đến các CDN hình ảnh -->
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://res.cloudinary.com">
+
+    <style>
+        /* Sử dụng font-family fallback tốt */
+        @font-face {
+            font-family: 'Noto Sans';
+            font-style: normal;
+            font-weight: 400;
+            font-display: block; /* FOIT - Flash Of Invisible Text */
+            src: local('Noto Sans');
+        }
+        
+        /* Lặp lại cho quá nhiều weight khác nhau */
+        @font-face {
+            font-family: 'Noto Sans';
+            font-style: normal;
+            font-weight: 700;
+            font-display: block;
+            src: local('Noto Sans');
+        }
+        
+        @font-face {
+            font-family: 'Noto Sans';
+            font-style: italic;
+            font-weight: 400;
+            font-display: block;
+            src: local('Noto Sans');
+        }
+        
+        /* Thêm font thứ hai không cần thiết */
+        @font-face {
+            font-family: 'Noto Serif';
+            font-style: normal;
+            font-weight: 400;
+            font-display: block;
+            src: local('Noto Serif');
+        }
+
+        body {
+            font-family: 'Noto Sans', 'Noto Serif';
+        }
+        
+        /* Thêm font header khác cho không cần thiết */
+        h1, h2, h3 {
+            font-family: 'Noto Serif', serif;
+        }
+
+        /* Style cho skeleton loading */
+        .skeleton-loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        
+        @keyframes skeleton-loading {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .product-image-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 66.67%; /* 3:2 aspect ratio */
+            overflow: hidden;
+        }
+        
+        .product-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .product-image.loaded {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="max-w-6xl mx-auto p-5 font-sans">
+    <div class="bg-gray-100 p-5 text-center">
+        <h1 class="text-3xl font-bold">Danh sách sản phẩm</h1>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-5">
+        <!-- Sản phẩm 1 với hình ảnh tối ưu -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="1">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <!-- AVIF - định dạng mới nhất, hiệu suất tốt nhất -->
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/1/300/200 300w,
+                            https://picsum.photos/id/1/600/400 600w,
+                            https://picsum.photos/id/1/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <!-- WebP - hỗ trợ rộng rãi hơn -->
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/1/300/200 300w,
+                            https://picsum.photos/id/1/600/400 600w,
+                            https://picsum.photos/id/1/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <!-- Fallback cho trình duyệt cũ -->
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/1/300/200 300w,
+                            https://picsum.photos/id/1/600/400 600w,
+                            https://picsum.photos/id/1/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/1/600/400"
+                        alt="Sản phẩm 1"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 1</h2>
+                <p class="text-red-600 font-bold">250.000đ</p>
+            </div>
+        </div>
+        
+        <!-- Sản phẩm 2 với hình ảnh tối ưu -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="2">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/2/300/200 300w,
+                            https://picsum.photos/id/2/600/400 600w,
+                            https://picsum.photos/id/2/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/2/300/200 300w,
+                            https://picsum.photos/id/2/600/400 600w,
+                            https://picsum.photos/id/2/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/2/300/200 300w,
+                            https://picsum.photos/id/2/600/400 600w,
+                            https://picsum.photos/id/2/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/2/600/400"
+                        alt="Sản phẩm 2"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 2</h2>
+                <p class="text-red-600 font-bold">350.000đ</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="2">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/7/300/200 300w,
+                            https://picsum.photos/id/7/600/400 600w,
+                            https://picsum.photos/id/7/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/7/300/200 300w,
+                            https://picsum.photos/id/7/600/400 600w,
+                            https://picsum.photos/id/7/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/7/300/200 300w,
+                            https://picsum.photos/id/7/600/400 600w,
+                            https://picsum.photos/id/7/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/7/600/400"
+                        alt="Sản phẩm 3"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 3</h2>
+                <p class="text-red-600 font-bold">125.000đ</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="2">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/8/300/200 300w,
+                            https://picsum.photos/id/8/600/400 600w,
+                            https://picsum.photos/id/8/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/8/300/200 300w,
+                            https://picsum.photos/id/8/600/400 600w,
+                            https://picsum.photos/id/8/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/8/300/200 300w,
+                            https://picsum.photos/id/8/600/400 600w,
+                            https://picsum.photos/id/8/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/8/600/400"
+                        alt="Sản phẩm 4"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 4</h2>
+                <p class="text-red-600 font-bold">150.000đ</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="2">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/9/300/200 300w,
+                            https://picsum.photos/id/9/600/400 600w,
+                            https://picsum.photos/id/9/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/9/300/200 300w,
+                            https://picsum.photos/id/9/600/400 600w,
+                            https://picsum.photos/id/9/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/9/300/200 300w,
+                            https://picsum.photos/id/9/600/400 600w,
+                            https://picsum.photos/id/9/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/9/600/400"
+                        alt="Sản phẩm 5"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 5</h2>
+                <p class="text-red-600 font-bold">150.000đ</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="2">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/10/300/200 300w,
+                            https://picsum.photos/id/10/600/400 600w,
+                            https://picsum.photos/id/10/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/10/300/200 300w,
+                            https://picsum.photos/id/10/600/400 600w,
+                            https://picsum.photos/id/10/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/10/300/200 300w,
+                            https://picsum.photos/id/10/600/400 600w,
+                            https://picsum.photos/id/10/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/10/600/400"
+                        alt="Sản phẩm 6"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 6</h2>
+                <p class="text-red-600 font-bold">150.000đ</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="2">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/11/300/200 300w,
+                            https://picsum.photos/id/11/600/400 600w,
+                            https://picsum.photos/id/11/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/11/300/200 300w,
+                            https://picsum.photos/id/11/600/400 600w,
+                            https://picsum.photos/id/11/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/11/300/200 300w,
+                            https://picsum.photos/id/11/600/400 600w,
+                            https://picsum.photos/id/11/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/11/600/400"
+                        alt="Sản phẩm 7"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 7</h2>
+                <p class="text-red-600 font-bold">150.000đ</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="2">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/12/300/200 300w,
+                            https://picsum.photos/id/12/600/400 600w,
+                            https://picsum.photos/id/12/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/12/300/200 300w,
+                            https://picsum.photos/id/12/600/400 600w,
+                            https://picsum.photos/id/12/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/12/300/200 300w,
+                            https://picsum.photos/id/12/600/400 600w,
+                            https://picsum.photos/id/12/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/12/600/400"
+                        alt="Sản phẩm 8"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 8</h2>
+                <p class="text-red-600 font-bold">100.000đ</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="2">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/13/300/200 300w,
+                            https://picsum.photos/id/13/600/400 600w,
+                            https://picsum.photos/id/13/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/13/300/200 300w,
+                            https://picsum.photos/id/13/600/400 600w,
+                            https://picsum.photos/id/13/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/13/300/200 300w,
+                            https://picsum.photos/id/13/600/400 600w,
+                            https://picsum.photos/id/13/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/13/600/400"
+                        alt="Sản phẩm 9"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 9</h2>
+                <p class="text-red-600 font-bold">400.000đ</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="2">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/14/300/200 300w,
+                            https://picsum.photos/id/14/600/400 600w,
+                            https://picsum.photos/id/14/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/14/300/200 300w,
+                            https://picsum.photos/id/14/600/400 600w,
+                            https://picsum.photos/id/14/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/14/300/200 300w,
+                            https://picsum.photos/id/14/600/400 600w,
+                            https://picsum.photos/id/14/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/14/600/400"
+                        alt="Sản phẩm 10"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 10</h2>
+                <p class="text-red-600 font-bold">230.000đ</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="2">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/15/300/200 300w,
+                            https://picsum.photos/id/15/600/400 600w,
+                            https://picsum.photos/id/15/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/15/300/200 300w,
+                            https://picsum.photos/id/15/600/400 600w,
+                            https://picsum.photos/id/15/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/15/300/200 300w,
+                            https://picsum.photos/id/15/600/400 600w,
+                            https://picsum.photos/id/15/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/15/600/400"
+                        alt="Sản phẩm 11"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 11</h2>
+                <p class="text-red-600 font-bold">150.000đ</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="2">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/16/300/200 300w,
+                            https://picsum.photos/id/16/600/400 600w,
+                            https://picsum.photos/id/16/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/16/300/200 300w,
+                            https://picsum.photos/id/16/600/400 600w,
+                            https://picsum.photos/id/16/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/16/300/200 300w,
+                            https://picsum.photos/id/16/600/400 600w,
+                            https://picsum.photos/id/16/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/16/600/400"
+                        alt="Sản phẩm 12"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 12</h2>
+                <p class="text-red-600 font-bold">150.000đ</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="2">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/17/300/200 300w,
+                            https://picsum.photos/id/17/600/400 600w,
+                            https://picsum.photos/id/17/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/17/300/200 300w,
+                            https://picsum.photos/id/17/600/400 600w,
+                            https://picsum.photos/id/17/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/17/300/200 300w,
+                            https://picsum.photos/id/17/600/400 600w,
+                            https://picsum.photos/id/17/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/17/600/400"
+                        alt="Sản phẩm 13"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 13</h2>
+                <p class="text-red-600 font-bold">150.000đ</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="2">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/18/300/200 300w,
+                            https://picsum.photos/id/18/600/400 600w,
+                            https://picsum.photos/id/18/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/18/300/200 300w,
+                            https://picsum.photos/id/18/600/400 600w,
+                            https://picsum.photos/id/18/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/18/300/200 300w,
+                            https://picsum.photos/id/18/600/400 600w,
+                            https://picsum.photos/id/18/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/18/600/400"
+                        alt="Sản phẩm 14"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 14</h2>
+                <p class="text-red-600 font-bold">150.000đ</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="2">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/19/300/200 300w,
+                            https://picsum.photos/id/19/600/400 600w,
+                            https://picsum.photos/id/19/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/19/300/200 300w,
+                            https://picsum.photos/id/19/600/400 600w,
+                            https://picsum.photos/id/19/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/19/300/200 300w,
+                            https://picsum.photos/id/19/600/400 600w,
+                            https://picsum.photos/id/19/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/19/600/400"
+                        alt="Sản phẩm 15"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 15</h2>
+                <p class="text-red-600 font-bold">410.000đ</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="2">
+            <div class="product-image-container">
+                <div class="skeleton-loader"></div>
+                <picture>
+                    <source
+                        type="image/avif"
+                        srcset="
+                            https://picsum.photos/id/20/300/200 300w,
+                            https://picsum.photos/id/20/600/400 600w,
+                            https://picsum.photos/id/20/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <source
+                        type="image/webp"
+                        srcset="
+                            https://picsum.photos/id/20/300/200 300w,
+                            https://picsum.photos/id/20/600/400 600w,
+                            https://picsum.photos/id/20/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    >
+                    <img
+                        class="product-image"
+                        srcset="
+                            https://picsum.photos/id/20/300/200 300w,
+                            https://picsum.photos/id/20/600/400 600w,
+                            https://picsum.photos/id/20/900/600 900w
+                        "
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        src="https://picsum.photos/id/20/600/400"
+                        alt="Sản phẩm 16"
+                        loading="lazy"
+                        onload="this.classList.add('loaded')"
+                    >
+                </picture>
+            </div>
+            <div class="p-4">
+                <h2 class="text-lg font-semibold mb-2">Sản phẩm 16</h2>
+                <p class="text-red-600 font-bold">390.000đ</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal tách biệt khỏi DOM chính -->
+    <div id="productModal" class="modal-container">
+        <div class="modal">
+            <h2 id="modalTitle" class="text-xl font-bold mb-4">Chi tiết sản phẩm</h2>
+            <div id="modalContent">
+                <!-- Nội dung sẽ được thêm qua JavaScript -->
+            </div>
+            <button id="closeModal" class="mt-4 px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700">Đóng</button>
+        </div>
+    </div>
+    
+    <!-- Toast container tách biệt khỏi DOM chính -->
+    <div id="toastContainer" class="toast-container">
+        <!-- Toast sẽ được thêm qua JavaScript -->
+    </div>
+</body>
+</html> 

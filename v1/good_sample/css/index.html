@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ví dụ tối ưu CSS</title>
+    
+    <!-- Preload các tài nguyên CSS quan trọng -->
+    <link rel="preload" href="https://cdn.example.com/fonts/main-font.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="https://cdn.example.com/css/main.min.css" as="style">
+    
+    <!-- Critical CSS được tải và execute trước -->
+    <link rel="stylesheet" href="https://cdn.example.com/css/critical.min.css">
+    
+    <!-- Sử dụng media để tải CSS không đồng bộ (async) -->
+    <link rel="stylesheet" href="https://cdn.example.com/css/secondary.min.css" media="print" onload="this.media='all'">
+    
+    <!-- Sử dụng CDN cho tài nguyên CSS tĩnh -->
+    <link rel="stylesheet" href="https://cdn.example.com/css/framework.min.css">
+
+    <!-- Phương án tải CSS  nếu JavaScript bị tắt -->
+    <noscript>
+        <link rel="stylesheet" href="https://cdn.example.com/css/secondary.min.css">
+    </noscript>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/">Trang chủ</a>
+            <a href="/about">Giới thiệu</a>
+            <a href="/contact">Liên hệ</a>
+        </nav>
+    </header>
+    
+    <section class="hero">
+        <div>
+            <h1>Tối ưu CSS</h1>
+            <p>Ví dụ về các kỹ thuật tối ưu CSS để cải thiện hiệu suất trang web</p>
+        </div>
+    </section>
+    
+    <main>
+        <div class="card">
+            <h2>Kỹ thuật tối ưu</h2>
+            <p>Đây là một ví dụ đơn giản về cách tối ưu CSS</p>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2023 Ví dụ tối ưu CSS</p>
+    </footer>
+    
+    <!-- Script để xóa CSS không sử dụng trong thời gian chạy -->
+    <script>
+        // Chạy sau khi trang đã tải
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                // Tìm tất cả các style sheets
+                var styleSheets = document.styleSheets;
+                for (var i = 0; i < styleSheets.length; i++) {
+                    var sheet = styleSheets[i];
+                    var rules = sheet.cssRules || sheet.rules;
+                    
+                    for (var j = 0; j < rules.length; j++) {
+                        var rule = rules[j];
+                        if (rule.selectorText) {
+                            // Kiểm tra xem selector có được sử dụng không
+                            try {
+                                if (document.querySelector(rule.selectorText) === null) {
+                                    // Nếu không sử dụng, xóa rule
+                                    sheet.deleteRule(j);
+                                    j--;
+                                }
+                            } catch(e) {
+                                // Bỏ qua lỗi với selectors không hợp lệ
+                                console.log('Error checking selector: ' + rule.selectorText);
+                            }
+                        }
+                    }
+                }
+            }, 2000); // Chạy sau 2 giây để đảm bảo trang đã render xong
+        });
+    </script>
+    
+    <!-- Tránh reflow bằng cách gom nhóm các thay đổi DOM và sử dụng requestAnimationFrame -->
+    <script>
+        function updateLayout() {
+            requestAnimationFrame(function() {
+                var element = document.querySelector('.card');
+                
+                // Gom nhóm các thay đổi CSS để tránh reflow nhiều lần
+                element.style.cssText = 'width: 90%; margin: 1rem auto; box-shadow: 0 2px 4px rgba(0,0,0,0.1);';
+                
+                // Thay vì thực hiện riêng lẻ:
+                // element.style.width = '90%';
+                // element.style.margin = '1rem auto';
+                // element.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+            });
+        }
+        
+        window.addEventListener('load', updateLayout);
+    </script>
+</body>
+</html>

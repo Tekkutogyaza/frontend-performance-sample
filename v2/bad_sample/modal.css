@@ -1,0 +1,65 @@
+/* Non-critical CSS cho modal và toast */
+.modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    will-change: opacity;
+    contain: strict;
+}
+
+.modal {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    max-width: 500px;
+    width: 80%;
+    transform: translateZ(0);
+}
+
+.toast-container {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    z-index: 1000;
+    contain: layout style;
+}
+
+.toast {
+    background-color: #333;
+    color: white;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.25rem;
+    margin-top: 0.625rem;
+    transform: translateZ(0);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* CSS cho product-detail-modal trong bad sample */
+.product-detail-modal {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    background: white;
+    padding: 20px;
+    border: 1px solid #ddd;
+    z-index: 10;
+    margin-top: 10px;
+}
+
+.notification-toast {
+    display: none;
+    background: #333;
+    color: white;
+    padding: 10px;
+    margin-bottom: 10px;
+} 

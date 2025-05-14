@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách sản phẩm (Không tối ưu)</title>
+    
+    <!-- Tải CSS đồng bộ (chặn rendering) không preload -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    
+    <!-- CSS không critical cũng tải đồng bộ (chặn rendering) -->
+    <link rel="stylesheet" href="modal.css">
+    <link rel="stylesheet" href="non-critical.css">
+    
+    <!-- Tải jQuery đồng bộ, chặn parsing - không tối ưu -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Tải script không quan trọng ngay lập tức, chặn parsing -->
+    <script src="non-critical.js"></script>
+    
+    <!-- Không preconnect, không preload - tải chậm hơn -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+    
+    <style>
+        /* CSS để vô hiệu hóa font-display: swap mặc định của Google Fonts */
+        @font-face {
+            font-family: 'Noto Sans';
+            font-style: normal;
+            font-weight: 400;
+            font-display: block; /* FOIT - Flash Of Invisible Text */
+            src: local('Noto Sans');
+        }
+        
+        /* Lặp lại cho quá nhiều weight khác nhau */
+        @font-face {
+            font-family: 'Noto Sans';
+            font-style: normal;
+            font-weight: 700;
+            font-display: block;
+            src: local('Noto Sans');
+        }
+        
+        @font-face {
+            font-family: 'Noto Sans';
+            font-style: italic;
+            font-weight: 400;
+            font-display: block;
+            src: local('Noto Sans');
+        }
+        
+        /* Thêm font thứ hai không cần thiết */
+        @font-face {
+            font-family: 'Noto Serif';
+            font-style: normal;
+            font-weight: 400;
+            font-display: block;
+            src: local('Noto Serif');
+        }
+        
+        /* Font-family không tối ưu, không fallback */
+        body {
+            font-family: 'Noto Sans', 'Noto Serif';
+        }
+        
+        /* Thêm font header khác cho không cần thiết */
+        h1, h2, h3 {
+            font-family: 'Noto Serif', serif;
+        }
+        
+        /* Mô phỏng delay font */
+        .delayed-font {
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+            animation-delay: 1s;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+    </style>
+    
+    <!-- Thêm JavaScript để mô phỏng tải font chậm -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.add('delayed-font');
+        });
+    </script>
+</head>
+<body class="max-w-6xl mx-auto p-5 font-sans">
+    <div>
+        <div class="bg-gray-100 p-5 text-center">
+            <h1 class="text-3xl font-bold">Danh sách sản phẩm</h1>
+            
+            <!-- Toast lồng trong DOM -->
+            <div class="notification-toast mt-4" id="mainToast">
+                Sản phẩm đã được thêm vào giỏ hàng!
+            </div>
+        </div>
+        
+        <div class="p-5">
+            <div class="products-container">
+                <!-- Cấu trúc sản phẩm rất phức tạp và lồng nhau sâu -->
+                <div class="product-row">
+                    <div class="product-column">
+                        <div class="relative">
+                            <div class="product-card bg-white rounded shadow border border-gray-200 overflow-hidden" onclick="showProductDetail(1)">
+                                <div class="relative w-full h-48">
+                                    <img src="https://picsum.photos/id/1/300/200" alt="Sản phẩm 1" class="w-full h-full object-cover">
+                                </div>
+                                <div class="p-4">
+                                    <h2 class="product-title font-semibold" style="font-size: 18px; line-height: 28px; margin-bottom: 8px;">Sản phẩm 1</h2>
+                                    <p class="text-red-600 font-bold">250.000đ</p>
+                                </div>
+                                
+                                <!-- Modal lồng trong sản phẩm -->
+                                <div class="product-detail-modal">
+                                    <h3 class="text-lg font-bold mb-2">Chi tiết sản phẩm 1</h3>
+                                    <p>Mô tả chi tiết về Sản phẩm 1. Sản phẩm có chất lượng cao, đã được kiểm định và đảm bảo an toàn cho người sử dụng.</p>
+                                    <ul>
+                                        <li>Chất liệu cao cấp</li>
+                                        <li>Bền bỉ</li>
+                                        <li>Thiết kế hiện đại</li>
+                                    </ul>
+                                    <button class="mt-3 px-3 py-1 bg-gray-200 rounded close-modal" onclick="closeProductDetail(1)">Đóng</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cấu trúc được lặp lại cho sản phẩm thứ hai -->
+                <div class="product-row">
+                    <div class="product-column">
+                        <div class="relative">
+                            <div class="product-card bg-white rounded shadow border border-gray-200 overflow-hidden" onclick="showProductDetail(2)">
+                                <div class="relative w-full h-48">
+                                    <img src="https://picsum.photos/id/2/300/200" alt="Sản phẩm 2" class="w-full h-full object-cover">
+                                </div>
+                                <div class="p-4">
+                                    <h2 class="product-title font-semibold" style="font-size: 18px; line-height: 28px; margin-bottom: 8px;">Sản phẩm 2</h2>
+                                    <p class="text-red-600 font-bold">350.000đ</p>
+                                </div>
+                                
+                                <!-- Modal lồng trong sản phẩm -->
+                                <div class="product-detail-modal">
+                                    <h3 class="text-lg font-bold mb-2">Chi tiết sản phẩm 2</h3>
+                                    <p>Mô tả chi tiết về Sản phẩm 2. Sản phẩm có nhiều tính năng nổi bật và phù hợp với nhiều nhu cầu sử dụng khác nhau.</p>
+                                    <ul>
+                                        <li>Tiết kiệm năng lượng</li>
+                                        <li>Thân thiện môi trường</li>
+                                        <li>Dễ sử dụng</li>
+                                    </ul>
+                                    <button class="mt-3 px-3 py-1 bg-gray-200 rounded close-modal" onclick="closeProductDetail(2)">Đóng</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tiếp tục lặp lại cấu trúc phức tạp này cho nhiều sản phẩm -->
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tối ưu hóa hình ảnh</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .demo-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .image-wrapper {
+            position: relative;
+            padding-bottom: 66.67%; /* Tỷ lệ 3:2 */
+            height: 0;
+            overflow: hidden;
+            background-color: #f0f0f0;
+        }
+        
+        img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        img.loaded {
+            opacity: 1;
+        }
+        
+        .skeleton {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .technique-list {
+            background-color: #f9f9f9;
+            padding: 20px;
+        }
+        
+        .technique-list h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .technique-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .technique-list li {
+            margin-bottom: 8px;
+            color: #444;
+        }
+        
+        .technique-tag {
+            display: inline-block;
+            background-color: #e0f2ff;
+            color: #0066cc;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+    </style>
+    <!-- Preload cho hình ảnh quan trọng -->
+    <link rel="preload" as="image" href="https://cdn-example.com/images/landscape-small.webp" media="(max-width: 600px)">
+</head>
+<body>
+    <h1>Tối ưu hóa hình ảnh Frontend</h1>
+    
+    <div class="demo-container">
+        <div class="image-wrapper">
+            <div class="skeleton"></div>
+            <picture>
+                <!-- AVIF - Định dạng mới, tiết kiệm hơn WebP -->
+                <source
+                    type="image/avif"
+                    srcset="https://cdn-example.com/images/optimized-small.avif?quality=80 300w,
+                            https://cdn-example.com/images/optimized-medium.avif?quality=80 600w,
+                            https://cdn-example.com/images/optimized-large.avif?quality=80 1200w"
+                    sizes="(max-width: 600px) 300px,
+                           (max-width: 1200px) 600px,
+                           1200px"
+                >
+                <!-- WebP - Hỗ trợ rộng rãi, nhẹ hơn JPEG/PNG -->
+                <source
+                    type="image/webp"
+                    srcset="https://cdn-example.com/images/optimized-small.webp?quality=85 300w,
+                            https://cdn-example.com/images/optimized-medium.webp?quality=85 600w,
+                            https://cdn-example.com/images/optimized-large.webp?quality=85 1200w"
+                    sizes="(max-width: 600px) 300px,
+                           (max-width: 1200px) 600px,
+                           1200px"
+                >
+                <!-- JPEG - Phương án dự phòng cho trình duyệt cũ -->
+                <source
+                    type="image/jpeg"
+                    srcset="https://cdn-example.com/images/optimized-small.jpg?quality=85 300w,
+                            https://cdn-example.com/images/optimized-medium.jpg?quality=85 600w,
+                            https://cdn-example.com/images/optimized-large.jpg?quality=85 1200w"
+                    sizes="(max-width: 600px) 300px,
+                           (max-width: 1200px) 600px,
+                           1200px"
+                >
+                <!-- Phương án dự phòng cuối cùng - sẽ được thay thế bằng JavaScript -->
+                <img
+                    class="lazy"
+                    data-src="https://cdn-example.com/images/optimized-medium.jpg?quality=85"
+                    alt="Hình ảnh đã được tối ưu hóa"
+                    width="800"
+                    height="533"
+                    loading="lazy"
+                >
+            </picture>
+        </div>
+        <div class="technique-list">
+            <h2>Các kỹ thuật tối ưu hóa đã áp dụng:</h2>
+            <ul>
+                <li><span class="technique-tag">Format</span> Sử dụng AVIF, WebP và JPEG fallback để đảm bảo tương thích và hiệu suất tối ưu</li>
+                <li><span class="technique-tag">Quality</span> Giảm chất lượng xuống 85% (JPEG/WebP) và 80% (AVIF) - cân bằng giữa kích thước file và chất lượng</li>
+                <li><span class="technique-tag">Size</span> Cung cấp nhiều kích cỡ ảnh (300w, 600w, 1200w) để phù hợp với từng thiết bị</li>
+                <li><span class="technique-tag">CDN</span> Phục vụ hình ảnh từ CDN để giảm thời gian tải và tăng hiệu suất</li>
+                <li><span class="technique-tag">Skeleton</span> Hiển thị skeleton placeholder trong lúc ảnh đang tải</li>
+                <li><span class="technique-tag">Lazy Load</span> Chỉ tải ảnh khi cần thiết (khi hiển thị trong viewport)</li>
+                <li><span class="technique-tag">Preload</span> Preload hình ảnh quan trọng cho thiết bị di động</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Kiểm tra trình duyệt có hỗ trợ IntersectionObserver không
+            if ('IntersectionObserver' in window) {
+                const imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const lazyImage = entry.target;
+                            const src = lazyImage.getAttribute('data-src');
+                            
+                            if (src) {
+                                lazyImage.src = src;
+                                lazyImage.removeAttribute('data-src');
+                                
+                                lazyImage.onload = function() {
+                                    lazyImage.classList.add('loaded');
+                                    // Ẩn skeleton sau khi ảnh đã tải xong
+                                    const parent = lazyImage.closest('.image-wrapper');
+                                    if (parent) {
+                                        const skeleton = parent.querySelector('.skeleton');
+                                        if (skeleton) {
+                                            skeleton.style.display = 'none';
+                                        }
+                                    }
+                                };
+                            }
+                            
+                            observer.unobserve(lazyImage);
+                        }
+                    });
+                });
+                
+                // Quan sát tất cả các ảnh có class "lazy"
+                const lazyImages = document.querySelectorAll('img.lazy');
+                lazyImages.forEach(img => {
+                    imageObserver.observe(img);
+                });
+            } else {
+                // Phương án dự phòng cho trình duyệt không hỗ trợ IntersectionObserver
+                const lazyImages = document.querySelectorAll('img.lazy');
+                lazyImages.forEach(img => {
+                    const src = img.getAttribute('data-src');
+                    if (src) {
+                        img.src = src;
+                        img.classList.add('loaded');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Web Tối Ưu</title>
+    <style>
+        /* CSS tối ưu - sử dụng biến CSS */
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --text-color: #333;
+            --spacing: 1rem;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            /* Sử dụng will-change một cách hợp lý và tiết kiệm */
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing);
+        }
+        
+        /* Sử dụng CSS Grid và Flexbox thay vì float hoặc positioning phức tạp */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing);
+        }
+        
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            /* Sử dụng transform thay vì thay đổi width/height */
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: scale(1.03);
+            /* Không thay đổi width/height gây reflow */
+        }
+        
+        /* Tối ưu cho modal - đặt ngoài document flow */
+        .modal-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.3s ease;
+            /* Sử dụng opacity và pointer-events thay vì display: none */
+        }
+        
+        .modal-container.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal {
+            background: #fff;
+            border-radius: 8px;
+            padding: var(--spacing);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            /* Sử dụng transform để tránh reflow */
+            transform: translateY(0);
+        }
+        
+        /* Container cho toast message - tách khỏi DOM chính */
+        .toast-container {
+            position: fixed;
+            bottom: var(--spacing);
+            right: var(--spacing);
+            z-index: 1001;
+        }
+        
+        .toast {
+            background: #333;
+            color: #fff;
+            padding: calc(var(--spacing) / 2) var(--spacing);
+            margin-top: var(--spacing);
+            border-radius: 4px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+        
+        .toast.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        /* Styles cho lazy loading */
+        .lazy-image-container {
+            overflow: hidden;
+            background: #f1f1f1;
+            position: relative;
+            aspect-ratio: 16/9;
+        }
+        
+        .lazy-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+        }
+        
+        .lazy-image.loaded {
+            opacity: 1;
+        }
+        
+        /* Virtualizes long lists */
+        .virtual-list-container {
+            height: 500px;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .virtual-list-content {
+            position: absolute;
+            width: 100%;
+        }
+        
+        .list-item {
+            padding: var(--spacing);
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <!-- Bố cục đơn giản, giảm thiểu DOM -->
+    <header>
+    </header>
+
+    <main class="container">
+        <!-- Sử dụng grid thay vì nhiều div lồng nhau -->
+        <div class="content-grid" id="products">
+        </div>
+        
+        <!-- Phân trang đơn giản -->
+        <div class="pagination">
+            <button id="load-more">Tải thêm</button>
+        </div>
+        
+        <!-- Virtual list cho danh sách dài -->
+        <div class="virtual-list-container" id="comments-container">
+        </div>
+    </main>
+
+    <!-- Modal container - tách biệt khỏi DOM chính -->
+    <div class="modal-container" id="modal-container">
+    </div>
+    
+    <!-- Toast container - tách biệt khỏi DOM chính -->
+    <div class="toast-container" id="toast-container">
+    </div>
+
+    <script>
+        // Lazy loading cho hình ảnh
+        function setupLazyLoading() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.add('loaded');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.lazy-image').forEach(img => {
+                observer.observe(img);
+            });
+        }
+        
+        // Hiển thị toast
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            
+            document.getElementById('toast-container').appendChild(toast);
+            
+            // Trigger reflow
+            void toast.offsetWidth;
+            
+            toast.classList.add('active');
+            
+            setTimeout(() => {
+                toast.classList.remove('active');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+        
+        // Xử lý modal
+        function openModal(content) {
+            document.getElementById('modal-content').innerHTML = content;
+            document.getElementById('modal-container').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('modal-container').classList.remove('active');
+        }
+        
+        document.getElementById('close-modal').addEventListener('click', closeModal);
+        
+        // Nạp sản phẩm theo trang
+        let currentPage = 1;
+        const productsPerPage = 8;
+        
+        function loadProducts(page) {
+            // Giả lập API call
+            setTimeout(() => {
+                const fragment = document.createDocumentFragment();
+                
+                for (let i = 0; i < productsPerPage; i++) {
+                    const productId = (page - 1) * productsPerPage + i + 1;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    
+                    const imageContainer = document.createElement('div');
+                    imageContainer.className = 'lazy-image-container';
+                    
+                    const img = document.createElement('img');
+                    img.className = 'lazy-image';
+                    img.alt = `Sản phẩm ${productId}`;
+                    img.dataset.src = `https://picsum.photos/id/${productId + 100}/300/200`;
+                    
+                    const content = document.createElement('div');
+                    content.className = 'card-content';
+                    content.innerHTML = `
+                        <h3>Sản phẩm ${productId}</h3>
+                        <p>Mô tả ngắn gọn về sản phẩm.</p>
+                        <button class="view-details" data-id="${productId}">Xem chi tiết</button>
+                    `;
+                    
+                    imageContainer.appendChild(img);
+                    card.appendChild(imageContainer);
+                    card.appendChild(content);
+                    fragment.appendChild(card);
+                }
+                
+                document.getElementById('products').appendChild(fragment);
+                setupLazyLoading();
+                
+                // Thêm event listeners
+                document.querySelectorAll('.view-details').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = this.dataset.id;
+                        openModal(`<p>Thông tin chi tiết về sản phẩm ${productId}</p>`);
+                        showToast('Đã mở thông tin sản phẩm');
+                    });
+                });
+                
+            }, 300);
+        }
+        
+        // Khởi tạo virtual list
+        function setupVirtualList() {
+            const container = document.getElementById('comments-container');
+            const content = document.getElementById('comments-list');
+            const itemHeight = 80; // Ước tính chiều cao mỗi mục
+            const totalItems = 1000; // Tổng số bình luận
+            const bufferItems = 10; // Số lượng item buffer
+            
+            // Thiết lập kích thước nội dung
+            content.style.height = `${totalItems * itemHeight}px`;
+            
+            let lastScrollTop = 0;
+            let startIndex = 0;
+            let endIndex = bufferItems;
+            
+            function renderItems(start, end) {
+                // Xóa nội dung hiện tại
+                content.innerHTML = '';
+                
+                for (let i = start; i < end && i < totalItems; i++) {
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    item.innerHTML = `
+                        <h4>Người dùng #${i + 1}</h4>
+                        <p>Bình luận từ người dùng. Đây là nội dung bình luận.</p>
+                    `;
+                    item.style.transform = `translateY(${i * itemHeight}px)`;
+                    content.appendChild(item);
+                }
+            }
+            
+            container.addEventListener('scroll', () => {
+                const scrollTop = container.scrollTop;
+                const viewportHeight = container.offsetHeight;
+                
+                // Tính toán index dựa trên vị trí scroll
+                const visibleStart = Math.floor(scrollTop / itemHeight);
+                const visibleEnd = Math.ceil((scrollTop + viewportHeight) / itemHeight);
+                
+                // Thêm buffer
+                const newStartIndex = Math.max(0, visibleStart - bufferItems);
+                const newEndIndex = Math.min(totalItems, visibleEnd + bufferItems);
+                
+                // Chỉ render lại khi cần thiết
+                if (newStartIndex !== startIndex || newEndIndex !== endIndex) {
+                    startIndex = newStartIndex;
+                    endIndex = newEndIndex;
+                    renderItems(startIndex, endIndex);
+                }
+                
+                lastScrollTop = scrollTop;
+            });
+            
+            // Render initial items
+            renderItems(startIndex, endIndex);
+        }
+        
+        // Nạp thêm sản phẩm
+        document.getElementById('load-more').addEventListener('click', () => {
+            currentPage++;
+            loadProducts(currentPage);
+            showToast('Đã tải thêm sản phẩm');
+        });
+        
+        // Khởi tạo trang
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts(currentPage);
+            setupVirtualList();
+        });
+    </script>
+</body>
+</html>

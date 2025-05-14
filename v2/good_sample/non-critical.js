@@ -1,0 +1,27 @@
+$(document).ready(function(){var t,n;let i={1:{id:1,title:"Sản phẩm 1",price:"250.000đ",description:"M\xf4 tả chi tiết về Sản phẩm 1. Sản phẩm c\xf3 chất lượng cao, đ\xe3 được kiểm định v\xe0 đảm bảo an to\xe0n cho người sử dụng.",features:["Chất liệu cao cấp","Bền bỉ","Thiết kế hiện đại"]},2:{id:2,title:"Sản phẩm 2",price:"350.000đ",description:"M\xf4 tả chi tiết về Sản phẩm 2. Sản phẩm c\xf3 nhiều t\xednh năng nổi bật v\xe0 ph\xf9 hợp với nhiều nhu cầu sử dụng kh\xe1c nhau.",features:["Tiết kiệm năng lượng","Th\xe2n thiện m\xf4i trường","Dễ sử dụng"]}};function c(t){let n=$('<div class="toast"></div>').text(t);$("#toastContainer").append(n),requestAnimationFrame(()=>{n.css("opacity",1),setTimeout(()=>{n.css("opacity",0),setTimeout(()=>{n.remove()},300)},3e3)})}let e;$(".product-item").on("click",(t=function(){let t=$(this).data("product-id");!function t(n){let c=i[n];c&&($("#modalTitle").text(c.title),requestAnimationFrame(()=>{let t=`
+    <p class="mb-4">${c.description}</p>
+    <p class="font-bold mb-2">Gi\xe1: ${c.price}</p>
+    <div class="mt-4">
+        <h3 class="font-bold mb-2">T\xednh năng:</h3>
+        <ul class="list-disc pl-5">
+            ${c.features.map(t=>`<li>${t}</li>`).join("")}
+        </ul>
+    </div>
+`;$("#modalContent").html(t),$(".modal-container").css("display","flex").animate({opacity:1},300)}))}(t)},function(){let n=this,i=arguments;clearTimeout(e),e=setTimeout(function(){t.apply(n,i)},300)}));let o;$("#closeModal").on("click",(n=function(){$(".modal-container").animate({opacity:0},300,function(){$(this).css("display","none")})},function(){let t=arguments;o||(n.apply(this,t),o=!0,setTimeout(()=>o=!1,300))})),$(document).on("click",".product-card",function(t){t.stopPropagation()}),console.log("Product page initialized with optimized JS")}),document.addEventListener("DOMContentLoaded",function(){let t=document.querySelectorAll('img[loading="lazy"]');if("IntersectionObserver"in window){let n=new IntersectionObserver(function(t,i){t.forEach(function(t){if(t.isIntersecting){let i=t.target;i.dataset.src&&(i.src=i.dataset.src),i.classList.add("loaded"),n.unobserve(i)}})});t.forEach(function(t){n.observe(t)})}else t.forEach(function(t){t.dataset.src&&(t.src=t.dataset.src)})});
+
+!function(){let t=1,e=!1,i=document.createElement("div");function $(t){let e=`
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-transform duration-300 hover:-translate-y-1 transform product-item" data-product-id="${t}">
+        <div class="product-image-container">
+            <div class="skeleton-loader"></div>
+            <picture>
+                <source type="image/avif" srcset="https://picsum.photos/id/${t}/300/200 300w, https://picsum.photos/id/${t}/600/400 600w, https://picsum.photos/id/${t}/900/600 900w" sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw">
+                <source type="image/webp" srcset="https://picsum.photos/id/${t}/300/200 300w, https://picsum.photos/id/${t}/600/400 600w, https://picsum.photos/id/${t}/900/600 900w" sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw">
+                <img class="product-image" src="https://picsum.photos/id/${t}/600/400" srcset="https://picsum.photos/id/${t}/300/200 300w, https://picsum.photos/id/${t}/600/400 600w, https://picsum.photos/id/${t}/900/600 900w" sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw" alt="Sản phẩm ${t}" loading="lazy" onload="this.classList.add('loaded')">
+            </picture>
+        </div>
+        <div class="p-4">
+            <h2 class="text-lg font-semibold mb-2">Sản phẩm ${t}</h2>
+            <p class="text-red-600 font-bold">${Math.floor(500*Math.random()+100)}.000đ</p>
+        </div>
+    </div>
+`,i=document.createElement("div");return i.innerHTML=e.trim(),i.firstChild}function r(){if(e)return;if(8*t>=100){let r=document.createElement("div");r.className="text-center text-gray-500 my-8 w-full col-span-full",r.textContent="Đ\xe3 hiển thị tất cả sản phẩm",document.querySelector(".grid").appendChild(r),o.unobserve(i);return}e=!0;let d=document.createElement("div");d.className="text-center text-gray-500 my-8 w-full col-span-full loading-indicator",d.innerHTML='<div class="inline-block w-8 h-8 border-4 border-gray-300 border-t-green-500 rounded-full animate-spin"></div><span class="ml-2">Đang tải th\xeam sản phẩm...</span>',document.querySelector(".grid").appendChild(d),setTimeout(()=>{document.querySelector(".loading-indicator").remove();let i=document.querySelector(".grid"),r=8*t+3;for(let o=0;o<8;o++){let d=r+o;if(d<=100){let n=$(d);i.appendChild(n),s(n.querySelectorAll('img[loading="lazy"]'))}}t++,e=!1},800)}function s(t){if("IntersectionObserver"in window){let e=new IntersectionObserver(function(t,i){t.forEach(function(t){if(t.isIntersecting){let i=t.target;i.classList.add("loaded"),e.unobserve(i)}})});t.forEach(function(t){e.observe(t)})}}i.id="loadMoreTrigger",i.style.height="10px",i.style.width="100%",i.style.marginTop="20px",document.querySelector(".grid").after(i);let o;"IntersectionObserver"in window&&((o=new IntersectionObserver(t=>{t.forEach(t=>{t.isIntersecting&&r()})},{rootMargin:"300px"})).observe(i),setTimeout(r,1e3)),document.querySelector(".grid").addEventListener("click",function(t){let e=t.target.closest(".product-item");e&&e.dataset.productId})}();

@@ -1,0 +1,173 @@
+/* CSS lớn với nhiều selectors không cần thiết */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #fff;
+}
+
+/* CSS phức tạp với nhiều selectors lồng nhau */
+header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem 0;
+}
+
+header nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+header nav ul {
+    list-style: none;
+    display: flex;
+}
+
+header nav ul li {
+    position: relative;
+    margin-right: 20px;
+}
+
+header nav ul li a {
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+    display: block;
+}
+
+header nav ul li ul {
+    position: absolute;
+    background-color: #34495e;
+    display: none;
+    min-width: 200px;
+}
+
+header nav ul li:hover ul {
+    display: block;
+}
+
+header nav ul li ul li {
+    margin: 0;
+    width: 100%;
+}
+
+/* Hero section với nhiều hiệu ứng nặng */
+.hero {
+    position: relative;
+    height: 500px;
+    overflow: hidden;
+}
+
+.hero img {
+    width: 100%;
+    height: auto;
+    animation: zoom 20s infinite alternate;
+}
+
+@keyframes zoom {
+    from { transform: scale(1); }
+    to { transform: scale(1.2); }
+}
+
+.hero h1 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+    font-size: 3rem;
+    text-align: center;
+}
+
+/* Sản phẩm với nhiều hiệu ứng không cần thiết */
+.products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 50px auto;
+    padding: 0 15px;
+}
+
+.product {
+    flex: 0 0 calc(33.333% - 20px);
+    margin-bottom: 30px;
+    padding: 20px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.product img {
+    width: 100%;
+    height: auto;
+}
+
+/* Testimonials với layout phức tạp */
+.testimonials {
+    background-color: #f9f9f9;
+    padding: 50px 15px;
+}
+
+.testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.testimonial {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer styles */
+footer {
+    background-color: #2c3e50;
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* CSS không được sử dụng */
+.unused-class1 {
+    color: red;
+    font-size: 24px;
+    border: 1px solid black;
+}
+
+.unused-class2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Thêm nhiều media queries không tối ưu */
+@media (max-width: 1200px) {
+    .product { flex: 0 0 calc(50% - 20px); }
+}
+
+@media (max-width: 768px) {
+    .product { flex: 0 0 100%; }
+    .testimonial-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 576px) {
+    .testimonial-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 2rem; }
+} 
